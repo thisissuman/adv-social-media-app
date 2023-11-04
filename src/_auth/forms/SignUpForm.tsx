@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,7 +16,10 @@ import Loader from "@/components/shared/Loader";
 import { Link } from "react-router-dom";
 import { createUserAccount } from "@/lib/appwrite/api";
 
+import { useToast } from "@/components/ui/use-toast";
+
 const SignUpForm = () => {
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof SignupValidationSchema>>({
     resolver: zodResolver(SignupValidationSchema),
     defaultValues: {
@@ -31,14 +33,17 @@ const SignUpForm = () => {
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof SignupValidationSchema>) {
     // create the user
-    const newUser = await createUserAccount(values); 
-    console.log(newUser);
-    
+    const newUser = await createUserAccount(values);
+    if (!newUser) {
+      return toast({
+        title: "Sign Up failed, Please try again",
+      });
+    }
+    // const session = await signInAccount()
   }
 
-  
-    const isLoading = false;
-  
+  const isLoading = false;
+
   return (
     <Form {...form}>
       <div className="sm:w-420 flex-center flex-col scale-90">
@@ -50,7 +55,10 @@ const SignUpForm = () => {
           To use FrameFusion, Please enter your details
         </p>
 
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5 w-full mt-4">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex flex-col gap-5 w-full mt-4"
+        >
           <FormField
             control={form.control}
             name="name"
@@ -103,10 +111,15 @@ const SignUpForm = () => {
               </FormItem>
             )}
           />
-          <Button type="submit" className="shad-button_primary">{isLoading ? <Loader/> : "Sign Up"} </Button>
+          <Button type="submit" className="shad-button_primary">
+            {isLoading ? <Loader /> : "Sign Up"}{" "}
+          </Button>
           <p className="text-small-regular text-light-2 text-center mt-2">
             Already have an account ?
-            <Link className="underline text-purple-700" to="/sign-in">  Log in</Link>
+            <Link className="underline text-purple-700" to="/sign-in">
+              {" "}
+              Log in
+            </Link>
           </p>
         </form>
       </div>
